@@ -9,15 +9,15 @@ import java.math.BigInteger;
 
 @Entity
 @Table(name = "users")
-@ApiModel(description = "User.")
-public class User implements Serializable {
-    @ApiModelProperty(notes = "The database auto-generated user ID")
+@ApiModel(description = "User. The model includes two fields: id and balance")
+public class User extends Model implements Serializable {
+    @ApiModelProperty(notes = "The auto-generated ID")
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name="id")
     private Long id;
 
-    @ApiModelProperty(notes = "The balance of user")
+    @ApiModelProperty(notes = "The balance of user (in cents)")
     @Column(name="balance")
     private BigInteger balance;
 
@@ -37,7 +37,6 @@ public class User implements Serializable {
     public BigInteger getBalance(){
         return balance;
     }
-
     public void setId(Long id) {
         this.id = id;
     }

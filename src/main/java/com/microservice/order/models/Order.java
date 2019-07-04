@@ -1,28 +1,42 @@
 package com.microservice.order.models;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import javax.persistence.*;
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
-
-// create table orders (id bigserial, user_id serial, books integer[][], total_payment bigint, order_date timestamp, status text);
 @Entity
 @Table(name = "orders")
-public class Order {
-
+@ApiModel(description = "Order. The model includes order information such as: order id, " +
+        "user id, list of products (books), status and etc")
+public class Order extends Model implements Serializable {
+    @ApiModelProperty(notes = "The auto-generated ID")
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name="id")
     private Long id;
+
+    @ApiModelProperty(notes = "The user ID")
     @Column(name="user_id")
     private Long user_id;
+
+    @ApiModelProperty(notes = "The list of pairs (book_id, number)")
     @Column(name="books")
     private ArrayList<Product> books;
+
+    @ApiModelProperty(notes = "The total payment value (in cents)")
     @Column(name="total_payment")
     private BigInteger total_payment;
+
+    @ApiModelProperty(notes = "The timestamp of order (LocalDateTime java-type)")
     @Column(name="order_date")
     private LocalDateTime order_date;
+
+    @ApiModelProperty(notes = "The status: pending / paid")
     @Column(name="status")
     private String status;
 
@@ -30,8 +44,6 @@ public class Order {
         id = 0L;
         user_id = 0L;
         books = new ArrayList<Product>();
-        //book_id = 0L;
-        //number = 0;
         total_payment = BigInteger.valueOf(0);
         order_date = LocalDateTime.now();
         status = "";
@@ -79,14 +91,6 @@ public class Order {
         books.add(new Product(book_id, number));
     }
 
-    public void setNumber(Long book_id, Long number) {
-        for(int i=0;i<books.size();++i){
-            if(books.get(i).getBookId()==book_id){
-                books.get(i).setNumber(number);
-            }
-        }
-    }
-
     public void setTotalPayment(BigInteger total_payment) {
         this.total_payment = total_payment;
     }
@@ -108,5 +112,3 @@ public class Order {
     }
 
 }
-// pending/paid
-// id bigserial, user_id serial, book_id serial, numer integer, total_payment money, order_date timestamp, status varchar(7)

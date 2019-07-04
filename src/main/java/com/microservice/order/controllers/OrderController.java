@@ -2,17 +2,13 @@ package com.microservice.order.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.microservice.order.models.Book;
-import com.microservice.order.models.Order;
-import com.microservice.order.models.User;
-import com.microservice.order.services.IBookService;
-import com.microservice.order.services.IOrderService;
-import com.microservice.order.services.IUserService;
+import com.microservice.order.models.*;
+import com.microservice.order.services.*;
+import com.microservice.order.repositories.*;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import com.microservice.order.models.Product;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,38 +16,34 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-public class OrderController {
-    @Autowired
-    private IOrderService orderService;
+public class OrderController extends CommonController<Order, OrderRepository, OrderService>{
     @Autowired
     private IUserService userService;
     @Autowired
     private IBookService bookService;
 
+    @ApiOperation(value = "Return json list of orders")
     @RequestMapping(method = RequestMethod.GET, value = "/api/orders/list", produces = "application/json")
     @ResponseBody
     public String getAllOrders() {
-        List<Order> orders = orderService.getAll();
-        if (orders!=null) {
-            try {
-                StringBuilder builder = new StringBuilder();
-                for (Order order : orders) {
-                    builder.append(new ObjectMapper().writeValueAsString(order) + "\n");
-                }
-                return builder.toString();
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-        }
-        return "";
+        return getAllObjects();
     }
 
+    @ApiOperation(value = "Return number of orders")
     @RequestMapping(method = RequestMethod.GET, value = "/api/orders/count", produces = "application/json")
     @ResponseBody
     public String getOrdersCount() {
-        return orderService.count().toString();
+        return count();
     }
 
+    @ApiOperation(value = "Return a order (json) by ID")
+    @RequestMapping(method = RequestMethod.GET, value = "/api/orders/get")
+    @ResponseBody
+    public String get(@RequestParam("id") Long id){
+        return getObjectJSON(id);
+    }
+
+    @ApiOperation(value = "Create a new order via json")
     @RequestMapping(method = RequestMethod.PUT, value = "/api/orders/create")
     @ResponseBody
     public String create(@RequestBody Order order){
@@ -80,7 +72,7 @@ public class OrderController {
 
         for (Book book : booksList) {
             Long ord_book_number = bookCounter.get(book.getId());
-            Long available_number = book.getAvaliable_number();
+            Long available_number = book.getAvaliableNumber();
             if(available_number==0)
                 return "Error: book (id="+book.getId()+") not available for order";
             if(ord_book_number>available_number || ord_book_number<1){
@@ -91,7 +83,7 @@ public class OrderController {
         }
         order.setTotalPayment(total_payment);
         order.setStatus("pending");
-        Order new_order = orderService.create(order);
+        Order new_order = service.create(order);
         try {
             StringBuilder builder = new StringBuilder();
             builder.append(new ObjectMapper().writeValueAsString(new_order));
@@ -102,28 +94,11 @@ public class OrderController {
         }
     }
 
-
-    @RequestMapping(method = RequestMethod.GET, value = "/api/orders/get")
-    @ResponseBody
-    public String get(@RequestParam("id") Long id){
-        Order order = orderService.get(id);
-        if(order==null){
-            return "Error: order with id=" + id + " is not exist";
-        }
-        try {
-            StringBuilder builder = new StringBuilder();
-            builder.append(new ObjectMapper().writeValueAsString(order));
-            return builder.toString();
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            return e.toString();
-        }
-    }
-
+    @ApiOperation(value = "Return orders (json-list) for user by ID")
     @RequestMapping(method = RequestMethod.GET, value = "/api/orders/get/byUserId")
     @ResponseBody
     public String getByUserId(@RequestParam("id") Long id){
-        List<Order> orders = orderService.getByUserId(id);
+        List<Order> orders = service.getByUserId(id);
         try {
             StringBuilder builder = new StringBuilder();
             builder.append(new ObjectMapper().writeValueAsString(orders));
@@ -134,10 +109,11 @@ public class OrderController {
         }
     }
 
+    @ApiOperation(value = "Apply payment of order by ID")
     @RequestMapping(method = RequestMethod.POST, value = "/api/orders/pay")
     @ResponseBody
     public String payOrder(@RequestParam("id") Long id){
-        Order order = orderService.get(id);
+        Order order = service.get(id);
         if(order == null)
             return "Error: order with id="+id+" is not exist";
         if(order.getStatus()=="paid")
@@ -153,9 +129,9 @@ public class OrderController {
             if(book==null){
                 return "Error: book with id=" + prod.getBookId() + " is not exist";
             }
-            if(book.getAvaliable_number()<prod.getNumber()){
+            if(book.getAvaliableNumber()<prod.getNumber()){
                 return "Error: the number of book (id="+prod.getBookId()
-                            +") must be equal from 1 to "+book.getAvaliable_number();
+                            +") must be equal from 1 to "+book.getAvaliableNumber();
             }
             total_payment = total_payment.add(book.getPrice().multiply(BigInteger.valueOf(prod.getNumber())));
         }
@@ -163,7 +139,7 @@ public class OrderController {
             String msg = "Info: price has changed. The order (id="+order.getId()+") was updated. "+
                     "Old price="+order.getTotalPayment()+", new price="+total_payment+". Try again\n";
             order.setTotalPayment(total_payment);
-            Order updated_order = orderService.update(order);
+            Order updated_order = service.update(order);
             try {
                 StringBuilder builder = new StringBuilder();
                 builder.append(msg);
@@ -181,13 +157,13 @@ public class OrderController {
         for(Product prod : books){
             Book book = bookService.get(prod.getBookId());
             book.setTotalSoldNumber(book.getTotalSoldNumber()+prod.getNumber());
-            book.setAvaliable_number(book.getAvaliable_number()-prod.getNumber());
+            book.setAvaliableNumber(book.getAvaliableNumber()-prod.getNumber());
             bookService.update(book);
         }
         user.setBalance(user.getBalance().subtract(total_payment));
         userService.update(user);
         order.setStatus("paid");
-        Order updated_order = orderService.update(order);
+        Order updated_order = service.update(order);
         try {
             StringBuilder builder = new StringBuilder();
             builder.append(new ObjectMapper().writeValueAsString(updated_order));
@@ -198,19 +174,19 @@ public class OrderController {
         }
     }
 
+    @ApiOperation(value = "The abort of not-payment order by ID")
     @RequestMapping(method = RequestMethod.POST, value = "/api/orders/cancel")
     @ResponseBody
     public String cancelOrder(@RequestParam("id") Long id){
-        Order order = orderService.get(id);
+        Order order = service.get(id);
         if(order == null)
             return "Error: order with id="+id+" is not exist";
         if(order.getStatus().equals("paid")) {
             return "Error: permission denied. Order with id=" + id + " was paid";
         }
-        if(!orderService.remove(order.getId())){
+        if(!service.remove(order.getId())){
             return "Error: order with id="+id+" is not exist";
         }
         return "done";
     }
-
 }

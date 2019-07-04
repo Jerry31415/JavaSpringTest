@@ -1,32 +1,53 @@
 package com.microservice.order.models;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import javax.persistence.*;
+import java.io.Serializable;
 import java.math.BigInteger;
 
 @Entity
 @Table(name = "books")
-public class Book {
+@ApiModel(description = "Book. The model includes description of book, price, available number and total sold number")
+public class Book extends Model implements Serializable {
+    @ApiModelProperty(notes = "The auto-generated ID")
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name="id")
     private Long id;
+
+    @ApiModelProperty(notes = "The authors of book")
     @Column(name="authors")
     private String authors ;
+
+    @ApiModelProperty(notes = "The title of book")
     @Column(name="title")
     private String title;
+
+    @ApiModelProperty(notes = "The publish year of book ")
     @Column(name="year")
     private int year;
+
+    @ApiModelProperty(notes = "The pages number of book")
     @Column(name="pages")
     private int pages;
+
+    @ApiModelProperty(notes = "The annotation (short description) of book")
     @Column(name="annotation")
     private String annotation;
+
+    @ApiModelProperty(notes = "The price of book (in cents)")
     @Column(name="price")
     private BigInteger price;
+
+    @ApiModelProperty(notes = "The available number")
     @Column(name="avaliable_number")
     private Long avaliable_number;
-    @Column(name="total_sold_number ")
-    private Long total_sold_number ;
 
+    @ApiModelProperty(notes = "The total sold number")
+    @Column(name="total_sold_number")
+    private Long total_sold_number ;
 
     public Book(){
         id = 0L;
@@ -81,7 +102,7 @@ public class Book {
         return price;
     }
 
-    public Long getAvaliable_number() {
+    public Long getAvaliableNumber() {
         return avaliable_number;
     }
 
@@ -113,7 +134,7 @@ public class Book {
         this.price = price;
     }
 
-    public void setAvaliable_number(Long avaliable_number) {
+    public void setAvaliableNumber(Long avaliable_number) {
         this.avaliable_number = avaliable_number;
     }
 
@@ -127,29 +148,14 @@ public class Book {
 
     //check of fields values
     public String checkFields(){
-        if(title.isEmpty()){
-            return "Error: title field is empty";
-        }
-        if(authors.isEmpty()){
-            return "Error: authors field is empty";
-        }
-        if(annotation.isEmpty()){
-            return "Error: annotation field is empty";
-        }
-        if(pages<=0){
-            return "Error: pages number <= 0";
-        }
-        if(year<=0){
-            return "Error: year <= 0";
-        }
-        if(avaliable_number<0){
-            return "Error: avaliable_number < 0";
-        }
-        if(price.compareTo(BigInteger.valueOf(0))<0){
-            return "Error: price < 0";
-        }
+        if(title.isEmpty()) return "Error: title field is empty";
+        if(authors.isEmpty()) return "Error: authors field is empty";
+        if(annotation.isEmpty()) return "Error: annotation field is empty";
+        if(pages<=0) return "Error: pages number <= 0";
+        if(year<=0) return "Error: year <= 0";
+        if(avaliable_number<0) return "Error: avaliable_number < 0";
+        if(price.compareTo(BigInteger.valueOf(0))<0) return "Error: price < 0";
         return "";
     }
-
 }
 
