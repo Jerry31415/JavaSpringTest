@@ -83,4 +83,98 @@ public class OrderController {
         }
     }
 
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/orders/get")
+    @ResponseBody
+    public String get(@RequestParam("id") Long id){
+        Order order = orderService.get(id);
+        if(order==null){
+            return "Error: order with id=" + id + " is not exist";
+        }
+        try {
+            StringBuilder builder = new StringBuilder();
+            builder.append(new ObjectMapper().writeValueAsString(order));
+            return builder.toString();
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return e.toString();
+        }
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/orders/get/byUserId")
+    @ResponseBody
+    public String getByUserId(@RequestParam("id") Long id){
+        List<Order> orders = orderService.getByUserId(id);
+        try {
+            StringBuilder builder = new StringBuilder();
+            builder.append(new ObjectMapper().writeValueAsString(orders));
+            return builder.toString();
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return e.toString();
+        }
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/api/orders/pay")
+    @ResponseBody
+    public String payOrder(@RequestParam("id") Long id){
+        Order order = orderService.get(id);
+        if(order == null)
+            return "Error: order with id="+id+" is not exist";
+        User user = userService.get(order.getUserId());
+        if(user == null)
+            return "Error: user with id="+order.getUserId()+" is not exist";
+        // Check avaliable
+        ArrayList<Product> books = order.getBooks();
+        BigInteger total_payment = BigInteger.valueOf(0);
+        for(Product prod : books){
+            Book book = bookService.get(prod.getBookId());
+            if(book==null){
+                return "Error: book with id=" + prod.getBookId() + " is not exist";
+            }
+            if(book.getAvaliable_number()<prod.getNumber()){
+                return "Error: the number of book (id="+prod.getBookId()
+                            +") must be equal from 1 to "+book.getAvaliable_number();
+            }
+            total_payment = total_payment.add(book.getPrice().multiply(BigInteger.valueOf(prod.getNumber())));
+        }
+        if(total_payment.compareTo(order.getTotalPayment())!=0){
+            String msg = "Info: price has changed. The order (id="+order.getId()+") was updated. "+
+                    "Old price="+order.getTotalPayment()+", new price="+total_payment+". Try again\n";
+            order.setTotalPayment(total_payment);
+            Order updated_order = orderService.update(order);
+            try {
+                StringBuilder builder = new StringBuilder();
+                builder.append(msg);
+                builder.append(new ObjectMapper().writeValueAsString(updated_order));
+                return builder.toString();
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+                return e.toString();
+            }
+        }
+        if(user.getBalance().compareTo(total_payment)<0){
+            return "Error: the balance of user (id="+user.getId()+") is less payment sum="+total_payment;
+        }
+        // pay products
+        for(Product prod : books){
+            Book book = bookService.get(prod.getBookId());
+            book.setAvaliable_number(book.getAvaliable_number()-prod.getNumber());
+            bookService.update(book);
+        }
+        user.setBalance(user.getBalance().subtract(total_payment));
+        userService.update(user);
+        order.setStatus("paid");
+        Order updated_order = orderService.update(order);
+        try {
+            StringBuilder builder = new StringBuilder();
+            builder.append(new ObjectMapper().writeValueAsString(updated_order));
+            return builder.toString();
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return e.toString();
+        }
+    }
+
+
 }

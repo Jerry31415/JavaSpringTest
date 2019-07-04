@@ -86,7 +86,7 @@ public class BookController {
     public String get(@RequestParam("id") Long id){
         Book book = bookService.get(id);
         if(book==null){
-            return "Error: user with id=" + id.toString() + " is not exist";
+            return "Error: book with id=" + id.toString() + " is not exist";
         }
         try {
             StringBuilder builder = new StringBuilder();
@@ -117,7 +117,7 @@ public class BookController {
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/books/update/avaliable_number")
     @ResponseBody
-    public String update_number(@RequestParam("id") Long id, @RequestParam("value") int number){
+    public String update_number(@RequestParam("id") Long id, @RequestParam("value") Long number){
         if(number>=0) {
             if (id > 1) {
                 Book book = bookService.get(id);

@@ -23,7 +23,7 @@ public class Book {
     @Column(name="price")
     private BigInteger price;
     @Column(name="avaliable_number")
-    private int avaliable_number;
+    private Long avaliable_number;
 
     public Book(){
         id = 0L;
@@ -33,10 +33,10 @@ public class Book {
         pages = 0;
         annotation = "";
         price = BigInteger.valueOf(0);
-        avaliable_number = 0;
+        avaliable_number = 0L;
     }
 
-    public Book(Long id, String authors, String title, int year, int pages, String annotation, BigInteger price, int number){
+    public Book(Long id, String authors, String title, int year, int pages, String annotation, BigInteger price, Long number){
         this.id = id;
         this.authors = authors;
         this.title = title;
@@ -75,7 +75,7 @@ public class Book {
         return price;
     }
 
-    public int getAvaliable_number() {
+    public Long getAvaliable_number() {
         return avaliable_number;
     }
 
@@ -107,7 +107,7 @@ public class Book {
         this.price = price;
     }
 
-    public void setAvaliable_number(int avaliable_number) {
+    public void setAvaliable_number(Long avaliable_number) {
         this.avaliable_number = avaliable_number;
     }
 

@@ -52,6 +52,14 @@ public class UserService implements IUserService {
     }
 
     @Override
+    public synchronized User update(User user){
+        if(userRepository.existsById(user.getId())){
+            return userRepository.save(user);
+        }
+        return null;
+    }
+
+    @Override
     public User get(Long id){
         return (userRepository.existsById(id))?userRepository.findById(id).get():null;
     }
