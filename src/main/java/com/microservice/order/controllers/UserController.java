@@ -3,10 +3,12 @@ package com.microservice.order.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservice.order.models.User;
+import com.microservice.order.services.IOrderService;
 import com.microservice.order.services.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import com.microservice.order.models.Order;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -15,6 +17,9 @@ import java.util.List;
 public class UserController {
     @Autowired
     private IUserService userService;
+
+    @Autowired
+    private IOrderService orderService;
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/users/list", produces = "application/json")
     @ResponseBody
@@ -57,6 +62,12 @@ public class UserController {
     @RequestMapping(method = RequestMethod.DELETE, value = "/api/users/remove")
     @ResponseBody
     public String remove(@RequestParam("id") Long id){
+        List<Order> user_orders = orderService.getByUserId(id);
+        if(user_orders!=null){
+            if(!user_orders.isEmpty()){
+                return "Error: user with id=" + id.toString() + " has orders";
+            }
+        }
         return (!userService.remove(id))?"Error: user with id=" + id.toString() + " is not exist":"done";
     }
 

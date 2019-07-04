@@ -9,4 +9,5 @@ public interface IOrderService extends ICommon<Order> {
     Order get(Long id);
     List<Order> getByUserId(Long id);
     Order update(Order order);
+    boolean remove(Long id);
 }

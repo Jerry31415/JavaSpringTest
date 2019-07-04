@@ -48,4 +48,13 @@ public class OrderService implements IOrderService {
         }
         return null;
     }
+
+    @Override
+    public synchronized boolean remove(Long id){
+        if(orderRepository.existsById(id)){
+            orderRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
 }

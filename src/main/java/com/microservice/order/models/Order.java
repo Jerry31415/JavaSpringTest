@@ -19,10 +19,6 @@ public class Order {
     private Long user_id;
     @Column(name="books")
     private ArrayList<Product> books;
-   // @Column(name="book_id")
-   // private Long book_id;
-  //  @Column(name="number")
-   // private int number;
     @Column(name="total_payment")
     private BigInteger total_payment;
     @Column(name="order_date")
@@ -46,8 +42,6 @@ public class Order {
         this.id = id;
         this.user_id = user_id;
         this.books = books;
-     //   this.book_id = book_id;
-     //   this.number = number;
         this.total_payment = total_payment;
         this.order_date = order_date;
         this.status = status;

@@ -3,7 +3,9 @@ package com.microservice.order.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservice.order.models.Book;
+import com.microservice.order.models.Order;
 import com.microservice.order.services.IBookService;
+import com.microservice.order.services.IOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +17,9 @@ import java.util.List;
 public class BookController {
     @Autowired
     private IBookService bookService;
+
+    @Autowired
+    private IOrderService orderService;
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/books/list", produces = "application/json")
     @ResponseBody
@@ -61,6 +66,13 @@ public class BookController {
     @RequestMapping(method = RequestMethod.DELETE, value = "/api/books/remove")
     @ResponseBody
     public String remove(@RequestParam("id") Long id){
+        // !!!!!!!
+      /*  List<Order> bought_books = orderService.getByUserId(id);
+        if(bought_books!=null){
+            if(!bought_books.isEmpty()){
+                return "Error: user with id=" + id.toString() + " has orders";
+            }
+        }*/
         return (!bookService.remove(id))?"Error: book with id=" + id.toString() + " is not exist":"done";
     }
 

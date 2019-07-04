@@ -121,6 +121,8 @@ public class OrderController {
         Order order = orderService.get(id);
         if(order == null)
             return "Error: order with id="+id+" is not exist";
+        if(order.getStatus()=="paid")
+            return "Error: order with id="+id+" already paid";
         User user = userService.get(order.getUserId());
         if(user == null)
             return "Error: user with id="+order.getUserId()+" is not exist";
@@ -176,5 +178,19 @@ public class OrderController {
         }
     }
 
+    @RequestMapping(method = RequestMethod.POST, value = "/api/orders/cancel")
+    @ResponseBody
+    public String cancelOrder(@RequestParam("id") Long id){
+        Order order = orderService.get(id);
+        if(order == null)
+            return "Error: order with id="+id+" is not exist";
+        if(order.getStatus().equals("paid")) {
+            return "Error: permission denied. Order with id=" + id + " was paid";
+        }
+        if(!orderService.remove(order.getId())){
+            return "Error: order with id="+id+" is not exist";
+        }
+        return "done";
+    }
 
 }
