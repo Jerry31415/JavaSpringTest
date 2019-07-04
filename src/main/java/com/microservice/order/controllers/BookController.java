@@ -66,13 +66,13 @@ public class BookController {
     @RequestMapping(method = RequestMethod.DELETE, value = "/api/books/remove")
     @ResponseBody
     public String remove(@RequestParam("id") Long id){
-        // !!!!!!!
-      /*  List<Order> bought_books = orderService.getByUserId(id);
-        if(bought_books!=null){
-            if(!bought_books.isEmpty()){
-                return "Error: user with id=" + id.toString() + " has orders";
-            }
-        }*/
+        Book book = bookService.get(id);
+        if(book==null){
+            return "Error: book with id=" + id + " is not exist";
+        }
+        if(book.getTotalSoldNumber()>0){
+            return "Error: operation denied. The book (id="+id+") was bought";
+        }
         return (!bookService.remove(id))?"Error: book with id=" + id.toString() + " is not exist":"done";
     }
 

@@ -102,6 +102,11 @@ public class Order {
     public ArrayList<Product> getBooks(){
         return books;
     }
+
+    public void clearBooksList(){
+        books.clear();
+    }
+
 }
 // pending/paid
 // id bigserial, user_id serial, book_id serial, numer integer, total_payment money, order_date timestamp, status varchar(7)

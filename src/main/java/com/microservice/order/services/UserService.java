@@ -28,9 +28,10 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public synchronized User create(BigInteger balance){
-        return userRepository.save(new User(0L, balance));
+    public synchronized User create(User user){
+        return userRepository.save(user);
     }
+
 
     @Override
     public synchronized boolean remove(Long id){
@@ -39,16 +40,6 @@ public class UserService implements IUserService {
             return true;
         }
         return false;
-    }
-
-    @Override
-    public synchronized User update(Long id, BigInteger balance){
-        if(userRepository.existsById(id)){
-            User user = userRepository.findById(id).get();
-            user.setBalance(balance);
-            return userRepository.save(user);
-        }
-        return null;
     }
 
     @Override

@@ -15,7 +15,9 @@ import com.microservice.order.models.Product;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class OrderController {
@@ -58,17 +60,34 @@ public class OrderController {
             return "Error: user with id="+order.getUserId()+" is not exist";
         ArrayList<Product> ord_books = order.getBooks();
         BigInteger total_payment = BigInteger.valueOf(0);
+        Map<Long, Long> bookCounter = new HashMap<>();
+        ArrayList<Book> booksList = new ArrayList<>();
+
         for (Product elem : ord_books) {
             Book book = bookService.get(elem.getBookId());
-            if(book == null)
-                return "Error: the book with id="+elem.getBookId()+" is not exist";
-            if(book.getAvaliable_number()==0)
-                return "Error: book (id="+elem.getBookId()+") not available for order";
-            if(elem.getNumber()>book.getAvaliable_number() || elem.getNumber()<1){
-                return "Error: incorrect number value of book (id="+elem.getBookId()
-                        +") (must be equal from 1 to "+book.getAvaliable_number()+")";
+            if (book == null)
+                return "Error: the book with id=" + elem.getBookId() + " is not exist";
+            booksList.add(book);
+            if(bookCounter.containsKey(elem.getBookId())){
+                bookCounter.put(elem.getBookId(), bookCounter.get(elem.getBookId())+elem.getNumber());
             }
-            total_payment = total_payment.add(book.getPrice().multiply(BigInteger.valueOf(elem.getNumber())));
+            else bookCounter.put(elem.getBookId(), elem.getNumber());
+        }
+        order.clearBooksList();
+        for (Map.Entry<Long, Long> product : bookCounter.entrySet()) {
+            order.addBook(product.getKey(), product.getValue());
+        }
+
+        for (Book book : booksList) {
+            Long ord_book_number = bookCounter.get(book.getId());
+            Long available_number = book.getAvaliable_number();
+            if(available_number==0)
+                return "Error: book (id="+book.getId()+") not available for order";
+            if(ord_book_number>available_number || ord_book_number<1){
+                return "Error: incorrect number value of book (id="+book.getId()
+                        +") (must be equal from 1 to "+available_number+")";
+            }
+            total_payment = total_payment.add(book.getPrice().multiply(BigInteger.valueOf(ord_book_number)));
         }
         order.setTotalPayment(total_payment);
         order.setStatus("pending");
@@ -161,6 +180,7 @@ public class OrderController {
         // pay products
         for(Product prod : books){
             Book book = bookService.get(prod.getBookId());
+            book.setTotalSoldNumber(book.getTotalSoldNumber()+prod.getNumber());
             book.setAvaliable_number(book.getAvaliable_number()-prod.getNumber());
             bookService.update(book);
         }

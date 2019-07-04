@@ -24,6 +24,9 @@ public class Book {
     private BigInteger price;
     @Column(name="avaliable_number")
     private Long avaliable_number;
+    @Column(name="total_sold_number ")
+    private Long total_sold_number ;
+
 
     public Book(){
         id = 0L;
@@ -34,9 +37,11 @@ public class Book {
         annotation = "";
         price = BigInteger.valueOf(0);
         avaliable_number = 0L;
+        total_sold_number = 0L;
     }
 
-    public Book(Long id, String authors, String title, int year, int pages, String annotation, BigInteger price, Long number){
+    public Book(Long id, String authors, String title, int year, int pages, String annotation,
+                BigInteger price, Long number, Long total_sold_number){
         this.id = id;
         this.authors = authors;
         this.title = title;
@@ -45,6 +50,7 @@ public class Book {
         this.annotation = annotation;
         this.price = price;
         this.avaliable_number = number;
+        this.total_sold_number = total_sold_number;
     }
 
     public Long getId() {
@@ -109,6 +115,14 @@ public class Book {
 
     public void setAvaliable_number(Long avaliable_number) {
         this.avaliable_number = avaliable_number;
+    }
+
+    public Long getTotalSoldNumber() {
+        return total_sold_number;
+    }
+
+    public void setTotalSoldNumber(Long total_sold_number) {
+        this.total_sold_number = total_sold_number;
     }
 
     //check of fields values

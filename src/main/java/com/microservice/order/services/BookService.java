@@ -43,7 +43,6 @@ public class BookService implements IBookService {
     @Override
     public synchronized Book update(Book new_book){
         if(bookRepository.existsById(new_book.getId())){
-            Book book = bookRepository.findById(new_book.getId()).get();
             return bookRepository.save(new_book);
         }
         return null;
@@ -55,17 +54,3 @@ public class BookService implements IBookService {
     }
 
 }
-
-/*
-*
-* {
-	"id" : 0,
-    "authors" : "A2",
-    "title" : "T2",
-    "year" : 2012,
-    "pages" : 644,
-    "annotation" : "AN1",
-    "price" : 20.0,
-    "avaliable_number" : 3
-}
-* */

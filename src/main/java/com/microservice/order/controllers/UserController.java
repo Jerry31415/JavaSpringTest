@@ -48,7 +48,7 @@ public class UserController {
     @RequestMapping(method = RequestMethod.PUT, value = "/api/users/create")
     @ResponseBody
     public String create(@RequestParam("balance") BigInteger balance){
-        User new_user = userService.create(balance);
+        User new_user = userService.create(new User(0L, balance));
         try {
             StringBuilder builder = new StringBuilder();
             builder.append(new ObjectMapper().writeValueAsString(new_user));
@@ -74,7 +74,9 @@ public class UserController {
     @RequestMapping(method = RequestMethod.POST, value = "/api/users/update")
     @ResponseBody
     public String update(@RequestBody User user){
-        return (userService.update(user.getId(), user.getBalance())==null)?"Error: user with id=" + user.getId().toString() + " is not exist":"done";
+        return (userService.update(new User(user.getId(), user.getBalance()))==null)?
+                "Error: user with id=" + user.getId().toString() + " is not exist":
+                "done";
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/users/get")
