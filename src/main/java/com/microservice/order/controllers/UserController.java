@@ -19,6 +19,9 @@ public class UserController extends CommonController<User, UserRepository, UserS
     @Autowired
     private IOrderService orderService;
 
+    /**
+     * @return Возвращает список всех пользователей в виде JSON-строки
+     */
     @ApiOperation(value = "Return json list of users")
     @RequestMapping(method = RequestMethod.GET, value = "/api/users/list", produces = "application/json")
     @ResponseBody
@@ -26,6 +29,9 @@ public class UserController extends CommonController<User, UserRepository, UserS
         return getAllObjects();
     }
 
+    /**
+     * @return Возвращает общее количество пользователей
+     */
     @ApiOperation(value = "Return number of users")
     @RequestMapping(method = RequestMethod.GET, value = "/api/users/count", produces = "application/json")
     @ResponseBody
@@ -33,6 +39,11 @@ public class UserController extends CommonController<User, UserRepository, UserS
         return count();
     }
 
+    /**
+     * @param id - идентификатор пользователя
+     * @return Возвращает пользователя с идентификатором id в виде JSON-строки, если он существует в таблице,
+     * иначе сообщение об ошибке
+     */
     @ApiOperation(value = "Return a user (json) by ID")
     @RequestMapping(method = RequestMethod.GET, value = "/api/users/get")
     @ResponseBody
@@ -40,6 +51,11 @@ public class UserController extends CommonController<User, UserRepository, UserS
         return getObjectJSON(id);
     }
 
+    /**
+     *  <p>Создает нового пользователя</p>
+     * @param balance - баланс пользователя
+     * @return Возвращает пользователя (JSON) с назначенным идентификатором и установленным балансом
+     */
     @ApiOperation(value = "Create a new user via json")
     @RequestMapping(method = RequestMethod.PUT, value = "/api/users/create")
     @ResponseBody
@@ -55,6 +71,12 @@ public class UserController extends CommonController<User, UserRepository, UserS
         }
     }
 
+    /**
+     *  <p>Удаляет пользователя с идентификатором id</p>
+     * @param id - идентификатор пользователя
+     * @return Если пользователь имеет заказы или не существует, то возвращается сообщение с ошибкой,
+     * иначе сообщение "done"
+     */
     @ApiOperation(value = "Remove a user by ID")
     @RequestMapping(method = RequestMethod.DELETE, value = "/api/users/remove")
     @ResponseBody
@@ -68,6 +90,11 @@ public class UserController extends CommonController<User, UserRepository, UserS
         return (!service.remove(id))?"Error: user with id=" + id.toString() + " is not exist":"done";
     }
 
+    /**
+     *  <p>Обновляет запись в таблице</p>
+     * @param user - пользователь
+     * @return Если пользователь не существует, то возвращается сообщение с ошибкой, иначе сообщение "done"
+     */
     @ApiOperation(value = "Update a user")
     @RequestMapping(method = RequestMethod.POST, value = "/api/users/update")
     @ResponseBody

@@ -146,7 +146,10 @@ public class Book extends Model implements Serializable {
         this.total_sold_number = total_sold_number;
     }
 
-    //check of fields values
+    /**
+     * <p>Производит проверку корректности заполнения полей</p>
+     * @return Если поля заполнены некорректно, то возвращает текстовое сообщение с ошибкой, иначе пустую строку
+     */
     public String checkFields(){
         if(title.isEmpty()) return "Error: title field is empty";
         if(authors.isEmpty()) return "Error: authors field is empty";

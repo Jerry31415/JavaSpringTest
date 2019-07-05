@@ -22,6 +22,9 @@ public class OrderController extends CommonController<Order, OrderRepository, Or
     @Autowired
     private IBookService bookService;
 
+    /**
+     * @return Возвращает список всех заказов в виде JSON-строки
+     */
     @ApiOperation(value = "Return json list of orders")
     @RequestMapping(method = RequestMethod.GET, value = "/api/orders/list", produces = "application/json")
     @ResponseBody
@@ -29,6 +32,9 @@ public class OrderController extends CommonController<Order, OrderRepository, Or
         return getAllObjects();
     }
 
+    /**
+     * @return Возвращает общее количество заказов
+     */
     @ApiOperation(value = "Return number of orders")
     @RequestMapping(method = RequestMethod.GET, value = "/api/orders/count", produces = "application/json")
     @ResponseBody
@@ -36,6 +42,11 @@ public class OrderController extends CommonController<Order, OrderRepository, Or
         return count();
     }
 
+    /**
+     * @param id - идентификатор заказа (объекта типа Order) в таблице
+     * @return Возвращает заказ с идентификатором id в виде JSON-строки, если он существует в таблице,
+     * иначе сообщение об ошибке
+     */
     @ApiOperation(value = "Return a order (json) by ID")
     @RequestMapping(method = RequestMethod.GET, value = "/api/orders/get")
     @ResponseBody
@@ -43,6 +54,12 @@ public class OrderController extends CommonController<Order, OrderRepository, Or
         return getObjectJSON(id);
     }
 
+    /**
+     * <p>Создает новый заказ. Устанавливает статус заказа "pending" (в обработке)</p>
+     * @param order - объект типа Order в формате JSON
+     * @return Возвращает заказ с идентификатором id в JSON формате. Если поля заполнены некорректно -
+     * возвращет сообщение об ошибке
+     */
     @ApiOperation(value = "Create a new order via json")
     @RequestMapping(method = RequestMethod.PUT, value = "/api/orders/create")
     @ResponseBody
@@ -94,6 +111,10 @@ public class OrderController extends CommonController<Order, OrderRepository, Or
         }
     }
 
+    /**
+     * @param id - идентификатор пользователя
+     * @return Возвращает список заказов в формате JSON для пользователя с заданным идентификатором
+     */
     @ApiOperation(value = "Return orders (json-list) for user by ID")
     @RequestMapping(method = RequestMethod.GET, value = "/api/orders/get/byUserId")
     @ResponseBody
@@ -109,6 +130,16 @@ public class OrderController extends CommonController<Order, OrderRepository, Or
         }
     }
 
+    /**
+     * <p>Оплата заказа. Устанавливает статус заказа "paid".
+     * Списывает стоимость заказа с счета пользователя.
+     * Модифицирует колличество доотупных для заказа книг</p>
+     * @param id -  идентификатор заказа
+     * @return Возвращает заказ с идентификатором id и модифицированным статусом в JSON формате.
+     * Если цена товара была измена - возвращает информционное сообщение с обновленной стоимостью.
+     * Для подтверждения оплаты потребуется дополнительный вызов данной функции.
+     * Если баланс пользователя меньше суммы заказа или возникают другие проблемы, то возвращет сообщение об ошибке
+     */
     @ApiOperation(value = "Apply payment of order by ID")
     @RequestMapping(method = RequestMethod.POST, value = "/api/orders/pay")
     @ResponseBody
@@ -174,6 +205,12 @@ public class OrderController extends CommonController<Order, OrderRepository, Or
         }
     }
 
+    /**
+     * <p>Отмена заказа. Оплаченый заказ не может быть отменен</p>
+     * @param id -  идентификатор заказа
+     * @return Если заказа с указаным id не существует или заказ был оплачен ранее (имеет статус "paid"),
+     * то возвращает сообщение об ошибке. Иначе, производит удаление записи из таблица и возвращает сообщение "done"
+     */
     @ApiOperation(value = "The abort of not-payment order by ID")
     @RequestMapping(method = RequestMethod.POST, value = "/api/orders/cancel")
     @ResponseBody

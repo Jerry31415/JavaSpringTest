@@ -16,6 +16,10 @@ public class CommonController<ModelType extends Model,
     @Autowired
     protected ServiceType service;
 
+
+    /**
+     * @return Возвращает список всех объектов таблицы в виде JSON-строки
+     */
     public String getAllObjects(){
         List<ModelType> obj_list = service.getAll();
         if(obj_list!=null){
@@ -32,10 +36,18 @@ public class CommonController<ModelType extends Model,
         return "";
     }
 
+    /**
+     * @return Возвращает число строк таблицы
+     */
     public String count(){
         return service.count().toString();
     }
 
+    /**
+     * @param id - идентификатор объекта в таблице
+     * @return Возвращает объект с идентификатором id в виде JSON-строки, если он существует в таблице,
+     * иначе сообщение об ошибке
+     */
     public String getObjectJSON(Long id){
         ModelType obj = service.get(id);
         if(obj==null){
