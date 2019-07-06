@@ -1,0 +1,6 @@
+com.microservice.shop
+com.microservice.shop.config
+com.microservice.shop.controllers
+com.microservice.shop.models
+com.microservice.shop.repositories
+com.microservice.shop.services
